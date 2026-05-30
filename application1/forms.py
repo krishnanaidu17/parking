@@ -9,6 +9,12 @@ class LoginForm(forms.ModelForm):
             }
         )
     )
+    mobilenumber = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Mobile Number'
+        })
+    )
     password=forms.CharField(
         widget=forms.TextInput(
             attrs={

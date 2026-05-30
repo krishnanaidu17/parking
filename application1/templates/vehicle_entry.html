@@ -1,46 +1,6 @@
-<!doctype html>
-{% load static %}
-<html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <title>Bootstrap naviagtions</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <script src="{% static 'js/script.js' %}"></script>
-  </head>
-  <body class="d-flex flex-column min-vh-100">
-    <div class="container-fluid d-flex flex-column flex-grow-1">
-      <div class="row">
-        <div class="col-12 p-0">
-            <div class="topbar d-flex justify-content-between align-items-center">
-                 <div class="d-flex align-items-center">
-                    <button class="btn btn-light btn-sm me-2" onclick="toggleSidebar()">
-                        <i class="bi bi-list"></i>
-                    </button>
-                    <i class="bi bi-car-front me-2"></i>
-                    <h5 class="mb-0">SPMS Panel</h5>
-                </div> 
-                <div>
-                    <span class="me-3">Welcome, Administrator</span>
-                    <button class="btn btn-primary btn-sm">Logout</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-2 sidebar hide" id="sidebar">
-            <a href="{% url 'dashboard' %}">Dashboard</a>
-            <a href="{% url 'category' %}">Category</a>
-            <a href="{% url 'vehicle_entry' %}">Vehicle Entry</a>
-            <a href="{% url 'manage' %}">Manage Vehicles</a>
-            <a href="{% url 'reports' %}">Reports</a>
-            <a href="{% url 'vehicle_number' %}">Search</a>
-            <a href="{% url 'settings' %}">Account Setting</a>
-            <a href="{% url 'index' %}">Logout</a>
-        </div>
+{% extends 'base.html' %}
+
+{% block content %}
         <div class="col-12 p-4" id="mainContent">
           <div class="row">
     <!-- Add Vehicle Form -->
@@ -51,31 +11,46 @@
                   Add Vehicle
                 </div>
                 <div class="card-body">
-                  <div class="row mb-2">
-                    <div class="col">
-                      <label>Vehicle Number</label>
-                      <input type="text" class="form-control">
+                  <form method="POST">
+                    {% csrf_token %}
+                    <div class="row mb-2">
+                      <div class="col">
+                        <label>Vehicle Number</label>
+                        <input type="text"
+                        name="vehicle_number"
+                        class="form-control">
+                      </div>
+                      <div class="col">
+                        <label>Vehicle Type</label>
+                        <select class="form-select" name="vehicle_type" id="vehicleType" onchange="fillDetails()">
+                          <option value="">Select Vehicle Type</option>
+                          {% for i in categories %}
+                          <option value="{{ i.id }}" data-area="{{ i.area_number }}" data-charge="{{ i.parking_charge }}">
+                            {{ i.vehicle_type }}
+                          </option>
+                          {% endfor %}
+                        </select>
+                      </div>
                     </div>
-                    <div class="col">
-                      <label>Vehicle Type</label>
-                      <select class="form-select">
-                        <option>Select Vehicle Type</option>
-                      </select>
+                    <div class="mb-3">
+                      <label class="form-label">Parking Area Number</label>
+                      <input type="text"
+                           id="areaNumber"
+                           class="form-control"
+                           readonly>
                     </div>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Parking Area Number</label>
-                    <select class="form-select">
-                      <option>Select Parking Area</option>
-                    </select>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Parking Charge</label>
-                    <select class="form-select">
-                      <option>Select Parking Charge</option>
-                    </select>
-                  </div>
-                  <button class="btn btn-primary w-100">Add Vehicle</button>
+                    <div class="mb-3">
+                      <label class="form-label">Parking Charge</label>
+                      <input type="text"
+                           id="parkingCharge"
+                           class="form-control"
+                           readonly>
+                      </div>
+                      <button type="submit"
+                          class="btn btn-primary w-100">
+                          Add Vehicle
+                      </button>
+                    </form>
                 </div>
               </div>
             </div>
@@ -151,39 +126,82 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>36</td>
-          <td>GBN-2306</td>
-          <td>2</td>
-          <td>2022-07-04 10:43:15</td>
-          <td>
-            <span class="badge bg-primary">Parked</span>
-          </td>
-          <td>
-            <button class="btn btn-sm btn-secondary">Receipt</button>
-          </td>
-        </tr>
+          {% for i in vehicles %}
+
+<tr>
+
+    <td>{{ forloop.counter }}</td>
+
+    <td>{{ i.vehicle_number }}</td>
+
+    <td>{{ i.area_no }}</td>
+
+    <td>{{ i.arrival_time }}</td>
+
+    <td>
+
+        <span class="badge bg-primary">
+
+            {{ i.status }}
+
+        </span>
+
+    </td>
+
+    <td>
+
+        <button class="btn btn-sm btn-secondary">
+
+            Receipt
+
+        </button>
+
+    </td>
+
+</tr>
+
+{% endfor %}
       </tbody>
     </table>
   </div>
   <!-- Footer -->
-  <div class=" d-flex justify-content-between align-items-center mb-3">
-    <small class="entry">Showing 1 to 1 of 1 entries</small>
+ <div class="d-flex justify-content-between align-items-center p-3">
+
+    <small>
+        Page {{ vehicles.number }} of {{ vehicles.paginator.num_pages }}
+    </small>
+
     <div>
-      <button class="btn btn-sm btn-outline-secondary">Previous</button>
-      <button class="btn btn-sm btn-primary">1</button>
-      <a href="entry1.html">
-        <button class="btn btn-sm btn-outline-secondary">Next</button>
-      </a>
+
+        {% if vehicles.has_previous %}
+            <a href="?page={{ vehicles.previous_page_number }}"
+               class="btn btn-light btn-sm">
+                Previous
+            </a>
+        {% endif %}
+
+        {% for num in vehicles.paginator.page_range %}
+            {% if vehicles.number == num %}
+                <a class="btn btn-primary btn-sm">{{ num }}</a>
+            {% else %}
+                <a href="?page={{ num }}"
+                   class="btn btn-light btn-sm">
+                    {{ num }}
+                </a>
+            {% endif %}
+        {% endfor %}
+
+        {% if vehicles.has_next %}
+            <a href="?page={{ vehicles.next_page_number }}"
+               class="btn btn-light btn-sm">
+                Next
+            </a>
+        {% endif %}
+
     </div>
-  </div>
+
+</div>
 </div>
 </div>
       </div>
-       <footer class="bg-dark text-white text-center py-2 mt-auto w-100">
-          <div class="container">
-            <p class="mb-0">© 2026 SPMS | All Rights Reserved</p>
-          </div>
-        </footer>
-</body>
-</html>
+ {% endblock %}  

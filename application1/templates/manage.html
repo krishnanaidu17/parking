@@ -1,46 +1,6 @@
-<!doctype html>
-{% load static %}
-<html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <title>Bootstrap naviagtions</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <script src="{% static 'js/script.js' %}"></script>
-  </head>
-  <body class="d-flex flex-column min-vh-100">
-    <div class="container-fluid d-flex flex-column flex-grow-1">
-      <div class="row">
-        <div class="col-12 p-0">
-            <div class="topbar d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center">
-                    <button class="btn btn-light btn-sm me-2" onclick="toggleSidebar()">
-                        <i class="bi bi-list"></i>
-                    </button>
-                    <i class="bi bi-car-front me-2"></i>
-                    <h5 class="mb-0">SPMS Panel</h5>
-                </div> 
-                <div>
-                    <span class="me-3">Welcome, Administrator</span>
-                    <button class="btn btn-primary btn-sm">Logout</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row flex-grow-1">
-        <div class="col-md-2 sidebar hide" id="sidebar">
-            <a href="{% url 'dashboard' %}">Dashboard</a>
-            <a href="{% url 'category' %}">Category</a>
-            <a href="{% url 'vehicle_entry' %}">Vehicle Entry</a>
-            <a href="{% url 'manage' %}">Manage Vehicles</a>
-            <a href="{% url 'reports' %}">Reports</a>
-            <a href="{% url 'vehicle_number' %}">Search</a>
-            <a href="{% url 'settings' %}">Account Setting</a>
-            <a href="{% url 'index' %}">Logout</a>
-        </div>
+{% extends 'base.html' %}
+
+{% block content %}
         <div class="col-md-12 p-0 d-flex flex-column" id="mainContent">
             <div class="row">
                 <div class="content flex-grow-1">
@@ -79,76 +39,86 @@
                                     <th>Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>34</td>
-                                    <td>GBN-2506</td>
-                                    <td>Car Type 101</td>
-                                    <td>1</td>
-                                    <td class="charge">$7.00</td>
-                                    <td>2022-07-04 09:29:15</td>
-                                    <td><span class="badge bg-success rounded-pill px-3">Leaved</span></td>
-                                    <td><button class="btn btn-secondary btn-sm">Done</button></td>
-                                </tr>
-                                <tr>
-                                    <td>35</td>
-                                    <td>ABC-1234</td>
-                                    <td>Car Type 101</td>
-                                    <td>1</td>
-                                    <td class="charge">$7.00</td>
-                                    <td>2022-07-04 09:29:47</td>
-                                    <td><span class="badge bg-success rounded-pill px-3">Leaved</span></td>
-                                    <td><button class="btn btn-secondary btn-sm">Done</button></td>
-                                </tr>
-                                <tr>
-                                    <td>36</td>
-                                    <td>GBN-2306</td>
-                                    <td>Car</td>
-                                    <td>2</td>
-                                    <td class="charge">$4.00</td>
-                                    <td>2022-07-04 10:45:15</td>
-                                    <td><span class="badge bg-primary rounded-pill px-3">Parked</span></td>
-                                    <td><button class="btn btn-primary btn-sm">Done</button></td>
-                                </tr>
-                                <tr>
-                                    <td>37</td>
-                                    <td>COM-1014</td>
-                                    <td>Category 102</td>
-                                    <td>2</td>
-                                    <td class="charge">$5.00</td>
-                                    <td>2022-07-04 14:08:26</td>
-                                    <td><span class="badge bg-success rounded-pill px-3">Leaved</span></td>
-                                    <td><button class="btn btn-secondary btn-sm">Done</button></td>
-                                </tr>
-                                <tr>
-                                    <td>38</td>
-                                    <td>ABC-4321</td>
-                                    <td>Minibus</td>
-                                    <td>9</td>
-                                    <td class="charge">$6.00</td>
-                                    <td>2022-07-04 14:09:14</td>
-                                    <td><span class="badge bg-success rounded-pill px-3">Leaved</span></td>
-                                    <td><button class="btn btn-secondary btn-sm">Done</button></td>
-                                </tr>
-                            </tbody>
+                                <tbody>
+                                    {% for v in vehicles %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ v.vehicle_number }}</td>
+                                        <td>{{ v.vehicle_type }}</td>
+                                        <td>{{ v.area_no }}</td>
+                                        <td class="charge">${{ v.charge }}</td>
+                                        <td>{{ v.arrival_time }}</td>
+                                        <td>
+                                            {% if v.status == "Parked" %}
+                                            <span class="badge bg-success">Parked</span>
+                                            {% else %}
+                                            <span class="badge bg-danger">Leaved</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="d-flex flex-row flex-nowrap gap-1 justify-content-center align-items-center">
+                                                <a href="{% url 'toggle_vehicle_status' v.id %}"
+                                                  class="btn btn-sm {% if v.status == 'Parked' %}btn-danger{% else %}btn-success{% endif %}">
+                                                  {% if v.status == "Parked" %}
+                                                  Leaved
+                                                  {% else %}
+                                                  Parked
+                                                  {% endif %}
+                                               </a>
+                                                <a href="{% url 'edit_category' v.id %}"
+                                                    class="btn btn-primary btn-sm">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <a href="{% url 'delete_category' v.id %}"
+                                                    class="btn btn-danger btn-sm">
+                                                    <i class="bi bi-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
                         </table>
-                        <div class="d-flex justify-content-between align-items-center table-footer">
-                            <div>Showing 1 to 5 of 5 entries</div>
-                            <div>
-                                <button class="btn btn-light btn-sm me-2">Previous</button>
-                                <button class="btn btn-primary btn-sm">1</button>
-                                <button class="btn btn-light btn-sm ms-2">Next</button>
-                            </div>
-                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+
+    <small>
+        Page {{ vehicles.number }} of {{ vehicles.paginator.num_pages }}
+    </small>
+
+    <div>
+
+        {% if vehicles.has_previous %}
+            <a href="?page={{ vehicles.previous_page_number }}"
+               class="btn btn-light btn-sm">
+                Previous
+            </a>
+        {% endif %}
+
+        {% for num in vehicles.paginator.page_range %}
+            {% if vehicles.number == num %}
+                <span class="btn btn-primary btn-sm">{{ num }}</span>
+            {% else %}
+                <a href="?page={{ num }}"
+                   class="btn btn-light btn-sm">
+                    {{ num }}
+                </a>
+            {% endif %}
+        {% endfor %}
+
+        {% if vehicles.has_next %}
+            <a href="?page={{ vehicles.next_page_number }}"
+               class="btn btn-light btn-sm">
+                Next
+            </a>
+        {% endif %}
+
+    </div>
+
+</div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-     <footer class="bg-dark text-white text-center py-2 mt-auto w-100">
-          <div class="container">
-            <p class="mb-0">© 2026 SPMS | All Rights Reserved</p>
-          </div>
-    </footer>
-</body>
-</html>    
+    
+{% endblock %}
+    
