@@ -182,3 +182,32 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 });
+document.getElementById('vehicleSearch').addEventListener('keyup', function() {
+
+    let value = this.value;
+
+    fetch(`/search-vehicle/?vehicle_number=${value}`)
+    .then(response => response.json())
+    .then(data => {
+
+        let tbody = document.getElementById('vehicle-results');
+
+        tbody.innerHTML = '';
+
+        data.forEach(v => {
+
+            tbody.innerHTML += `
+            <tr>
+                <td>${v.id}</td>
+                <td>${v.vehicle_number}</td>
+                <td>${v.vehicle_type}</td>
+                <td>${v.area_no}</td>
+                <td>${v.charge}</td>
+                <td>${v.status}</td>
+                <td>${v.arrival_time}</td>
+            </tr>`;
+        });
+
+    });
+
+});

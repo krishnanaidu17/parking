@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+
+{% block content %}
+           <div class="container mt-4">
+
+    <div class="card">
+
+        <div class="card-header">
+            <i class="bi bi-list"></i> Add Sub Category
+        </div>
+
+        <div class="card-body">
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <!-- Category -->
+                <div class="mb-3">
+                    <label>Category</label>
+
+                    <select class="form-control"
+        name="category"
+        id="category">
+
+                        <option value="">Select Category</option>
+
+                        {% for i in categories %}
+                        <option value="{{ i.vehicle_type }}"
+{% if item.category == i.vehicle_type %}selected{% endif %}>
+    {{ i.vehicle_type }}
+</option>
+                        {% endfor %}
+
+                    </select>
+                </div>
+                <!-- Tyres -->
+                <div class="mb-3">
+    <label>Vehicle Type</label>
+
+    <input type="text"
+       name="vehicle_type"
+       class="form-control"
+       placeholder="Enter Vehicle Type"
+       value="{{ item.vehicle_type|default:'' }}">
+</div>
+
+                <!-- Parking Area -->
+                <div class="mb-3">
+                    <label>Parking Area Number</label>
+
+                    <input type="text"
+       name="area_number"
+       class="form-control"
+       value="{{ item.area_number|default:'' }}">
+                </div>
+
+                <!-- Parking Charge -->
+                <div class="mb-3">
+                    <label>Parking Charge</label>
+
+                    <input type="text"
+       name="parking_charge"
+       class="form-control"
+       value="{{ item.parking_charge|default:'' }}">
+                </div>
+
+                <button type="submit"
+        class="btn btn-primary w-100">
+    {% if item %}
+        Update
+    {% else %}
+        Submit
+    {% endif %}
+</button>
+
+            </form>
+        </div>
+    </div>
+            <div class="card mt-4">
+
+    <div class="card-header">
+        Manage Sub Category
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped text-center">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Category</th>
+                    <th>Vehicle Type</th>
+                    <th>Area Number</th>
+                    <th>Parking Charge</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for i in data %}
+
+                <tr>
+
+                    <td>{{ forloop.counter }}</td>
+
+                    <td>{{ i.category }}</td>
+
+                    <td>{{ i.vehicle_type }}</td>
+
+                    <td>{{ i.area_number }}</td>
+
+                    <td>{{ i.parking_charge }}</td>
+
+                    <td>
+
+                        {% if i.status %}
+                        <span class="badge bg-success">
+                            Activated
+                        </span>
+                        {% else %}
+                        <span class="badge bg-danger">
+                            Deactivated
+                        </span>
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+    <div class="d-flex flex-row flex-nowrap gap-1 justify-content-center align-items-center">
+
+        <a href="{% url 'toggle_subcategory' i.id %}"
+           class="btn btn-sm {% if i.status %}btn-danger{% else %}btn-success{% endif %}">
+            {% if i.status %}Deactivate{% else %}Activate{% endif %}
+        </a>
+
+        <a href="{% url 'edit_subcategory' i.id %}"
+           class="btn btn-primary btn-sm">
+            <i class="bi bi-pencil"></i>
+        </a>
+
+        <a href="{% url 'delete_subcategory' i.id %}"
+           class="btn btn-danger btn-sm">
+            <i class="bi bi-trash"></i>
+        </a>
+
+    </div>
+</td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+    <div class="table-responsive">
+    <table class="table table-bordered table-striped text-center">
+    </table>
+</div>
+
+<div class="card-footer">
+    <div class="d-flex justify-content-between align-items-center">
+
+        <small>
+            Page {{ data.number }} of {{ data.paginator.num_pages }}
+        </small>
+
+        <div>
+            {% if data.has_previous %}
+            <a href="?page={{ data.previous_page_number }}"
+               class="btn btn-light btn-sm">
+                Previous
+            </a>
+            {% endif %}
+
+            {% for num in data.paginator.page_range %}
+                {% if data.number == num %}
+                <a class="btn btn-primary btn-sm">{{ num }}</a>
+                {% else %}
+                <a href="?page={{ num }}"
+                   class="btn btn-light btn-sm">
+                    {{ num }}
+                </a>
+                {% endif %}
+            {% endfor %}
+
+            {% if data.has_next %}
+            <a href="?page={{ data.next_page_number }}"
+               class="btn btn-light btn-sm">
+                Next
+            </a>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+</div>
+
+        </div>
+
+    </div>
+
+</div>
+
+    {% endblock %}  

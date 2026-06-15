@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-        <div class="col-12 p-4" id="mainContent">
+        
           <div class="row">
     <!-- Add Vehicle Form -->
             <div class="col-12 col-sm-6 col-md-8">
@@ -17,15 +17,19 @@
                       <div class="col">
                         <label>Vehicle Number</label>
                         <input type="text"
-                        name="vehicle_number"
-                        class="form-control">
+                         name="vehicle_number"
+                         class="form-control"
+                         value="{{ edit_vehicle.vehicle_number|default:'' }}">
                       </div>
                       <div class="col">
                         <label>Vehicle Type</label>
                         <select class="form-select" name="vehicle_type" id="vehicleType" onchange="fillDetails()">
                           <option value="">Select Vehicle Type</option>
                           {% for i in categories %}
-                          <option value="{{ i.id }}" data-area="{{ i.area_number }}" data-charge="{{ i.parking_charge }}">
+                          <option value="{{ i.id }}"
+                            data-area="{{ i.area_number }}"
+                            data-charge="{{ i.parking_charge }}"
+                            {% if edit_vehicle.vehicle_type.id == i.id %}selected{% endif %}>
                             {{ i.vehicle_type }}
                           </option>
                           {% endfor %}
@@ -35,20 +39,26 @@
                     <div class="mb-3">
                       <label class="form-label">Parking Area Number</label>
                       <input type="text"
-                           id="areaNumber"
-                           class="form-control"
-                           readonly>
+                        id="areaNumber"
+                        class="form-control"
+                        value="{{ edit_vehicle.area_no|default:'' }}"
+                        readonly>
                     </div>
                     <div class="mb-3">
                       <label class="form-label">Parking Charge</label>
                       <input type="text"
-                           id="parkingCharge"
-                           class="form-control"
-                           readonly>
+id="parkingCharge"
+class="form-control"
+value="{{ edit_vehicle.charge|default:'' }}"
+readonly>
                       </div>
                       <button type="submit"
                           class="btn btn-primary w-100">
-                          Add Vehicle
+                          {% if edit_vehicle %}
+Update Vehicle
+{% else %}
+Add Vehicle
+{% endif %}
                       </button>
                     </form>
                 </div>

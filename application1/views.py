@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib import messages
 from django.db.models import Sum
-from .models import VehicleEntry,Category
+from .models import VehicleEntry,Category,SubCategory
 from application1.forms import LoginForm
 from application1.models import login as LoginModel
 from django.core.paginator import Paginator
+from django.db.models import Q
 import random
 from django.http import JsonResponse
 
@@ -113,6 +114,8 @@ def dashboard(request):
     })
 def entry1 (request):
     return render(request, 'entry1.html')
+def subcategory (request):
+    return render(request, 'subcategory.html')
 def reports(request):
 
     searched_ids = request.session.get('searched_ids', [])
@@ -399,8 +402,9 @@ def search_vehicle(request):
     vehicle_number = request.GET.get('vehicle_number', '')
 
     vehicles = VehicleEntry.objects.filter(
-        vehicle_number__icontains=vehicle_number
-    )
+    Q(vehicle_number__icontains=vehicle_number) |
+    Q(vehicle_type__vehicle_type__icontains=vehicle_number)
+).order_by('-id')
 
     data = []
 
@@ -416,3 +420,119 @@ def search_vehicle(request):
         })
 
     return JsonResponse(data, safe=False)
+def edit_vehicle(request, id):
+
+    vehicle = get_object_or_404(VehicleEntry, id=id)
+
+    categories = Category.objects.filter(status=True)
+
+    if request.method == "POST":
+
+        category = Category.objects.get(
+            id=request.POST['vehicle_type']
+        )
+
+        vehicle.vehicle_number = request.POST['vehicle_number']
+        vehicle.vehicle_type = category
+        vehicle.area_no = category.area_number
+        vehicle.charge = category.parking_charge
+
+        vehicle.save()
+
+        return redirect('manage')
+
+    vehicles = VehicleEntry.objects.all()
+
+    return render(request, 'vehicle_entry.html', {
+        'edit_vehicle': vehicle,
+        'categories': categories,
+        'vehicles': vehicles
+    })
+def delete_vehicle(request, id):
+
+    vehicle = get_object_or_404(VehicleEntry, id=id)
+
+    vehicle.delete()
+
+    return redirect('manage')
+from .models import Category, SubCategory
+
+def subcategory(request):
+
+    if request.method == "POST":
+
+        vehicle_type = request.POST.get('vehicle_type')
+
+        tyres = request.POST.get('tyres')
+
+        # save vehicle type + wheels in same field
+        if tyres:
+            vehicle_type = f"{tyres} Wheels"
+
+        SubCategory.objects.create(
+            category=request.POST.get('category'),
+            vehicle_type=vehicle_type,
+            area_number=request.POST.get('area_number'),
+            parking_charge=request.POST.get('parking_charge')
+        )
+
+        return redirect('subcategory')
+
+    categories = Category.objects.values(
+        'vehicle_type'
+    ).distinct()
+
+    data = SubCategory.objects.all().order_by('-id')
+    paginator = Paginator(data, 10)  # 10 records per page
+    page_number = request.GET.get('page')
+    data = paginator.get_page(page_number)
+    return render(request,
+              'subcategory.html',
+              {
+                  'categories': categories,
+                  'data': data,
+                  'page_obj': data
+              })
+def edit_subcategory(request, id):
+
+    item = get_object_or_404(SubCategory, id=id)
+
+    if request.method == "POST":
+
+        item.category = request.POST.get('category')
+        item.vehicle_type = request.POST.get('vehicle_type')
+        item.area_number = request.POST.get('area_number')
+        item.parking_charge = request.POST.get('parking_charge')
+
+        item.save()
+
+        return redirect('subcategory')
+
+    categories = Category.objects.values('vehicle_type').distinct()
+
+    data = SubCategory.objects.all().order_by('-id')
+    paginator = Paginator(data, 10)
+    page_number = request.GET.get('page')
+    data = paginator.get_page(page_number)
+    return render(request, 'subcategory.html', {
+    'item': item,
+    'categories': categories,
+    'data': data,
+    'page_obj': data
+     })
+def delete_subcategory(request, id):
+
+    item = SubCategory.objects.get(id=id)
+
+    item.delete()
+
+    return redirect('subcategory')
+def toggle_subcategory(request, id):
+
+    item = SubCategory.objects.get(id=id)
+
+    item.status = not item.status
+
+    item.save()
+
+    return redirect('subcategory')
